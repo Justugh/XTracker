@@ -1,0 +1,14 @@
+# General Settings
+save-time: 30 # This is in seconds.
+reload-config-permission: "xtracker.reload"
+command-permission: "xtracker.check"
+
+# Messages
+prefix: "&9&lXTracker &8»&9"
+config-reloaded: "%prefix% Config successfully reloaded!"
+player-only: "%prefix% Only players can use this command!"
+no-permission: "%prefix% You don't have permission to use this command!"
+command-usage: "%prefix% Usage: /xraycheck <player> (world)"
+no-data: "%prefix% There is no data for %player% in the world %world%."
+data-title: "&9X-Ray Data for &b%player%&8:"
+data-item: "&b%ore_type% &8(&9Amount Mined&8: &b%amount_mined%&8, &9Veins Mined&8: &b%veins_mined%&8) (&b%percentage%%&8)"

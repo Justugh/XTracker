@@ -1,0 +1,12 @@
+name: XTracker
+version: ${project.version}
+main: net.justugh.xt.XTracker
+authors: [Justugh]
+description: XTracker is an X-Ray tracking plugin designed to make catching xrayers easier.
+website: www.justugh.net
+commands:
+  xraycheck:
+    description: "View X-Ray data about the player."
+    aliases: ["xcheck", "xraystats"]
+  xtracker:
+    description: "Reload the XTracker configuration."
