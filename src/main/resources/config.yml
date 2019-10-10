@@ -1,7 +1,23 @@
+config-version: "0.1" # DO NOT MODIFY THIS.
+
 # General Settings
 save-time: 30 # This is in seconds.
 reload-config-permission: "xtracker.reload"
 command-permission: "xtracker.check"
+alert-permission: "xtracker.alert"
+
+# Alert Settings
+# This works by alerting staff if the setting
+# is higher than the players current percentage
+alerts:
+  STONE: -1
+  COAL: -1
+  IRON: -1
+  GOLD: 60
+  LAPIS: 50
+  REDSTONE: 50
+  EMERALD: 40
+  DIAMOND: 40
 
 # Messages
 prefix: "&9&lXTracker &8»&9"
@@ -12,3 +28,4 @@ command-usage: "%prefix% Usage: /xraycheck <player> (world)"
 no-data: "%prefix% There is no data for %player% in the world %world%."
 data-title: "&9X-Ray Data for &b%player%&8:"
 data-item: "&b%ore_type% &8(&9Amount Mined&8: &b%amount_mined%&8, &9Veins Mined&8: &b%veins_mined%&8) (&b%percentage%%&8)"
+alert-message: "%prefix% %player% is most likely X-Raying &b%ore_type% &8(&9Amount Mined&8: &b%amount_mined%&8, &9Veins Mined&8: &b%veins_mined%&8) (&b%percentage%%&8)"

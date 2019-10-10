@@ -8,6 +8,7 @@ import net.justugh.xt.XTracker;
 import net.justugh.xt.ore.OreData;
 import net.justugh.xt.ore.OreType;
 import net.justugh.xt.player.XRayPlayer;
+import net.justugh.xt.util.Format;
 import net.justugh.xt.world.WorldCache;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
@@ -68,6 +69,21 @@ public class XRayManager implements Listener {
 
         if (!isInVein(event.getBlock())) {
             oreData.setOreVeinsMined(oreData.getOreVeinsMined() + 1);
+
+            if(XTracker.getInstance().getConfig().getInt("alerts." + oreType.name()) != -1) {
+                if(getPercentage(player, oreType) >= XTracker.getInstance().getConfig().getInt("alerts." + oreType.name())) {
+                    Bukkit.getOnlinePlayers().forEach(onlinePlayer -> {
+                        if(onlinePlayer.hasPermission(XTracker.getInstance().getConfig().getString("alert-permission"))) {
+                            onlinePlayer.sendMessage(Format.format(XTracker.getInstance().getConfig().getString("alert-message")
+                                    .replace("%player%", event.getPlayer().getName())
+                                    .replace("%ore_type%", oreData.getOreType().getFriendlyName())
+                                    .replace("%amount_mined%", oreData.getAmountMined() + 1 + "")
+                                    .replace("%veins_mined%", oreData.getOreVeinsMined() + "")
+                                    .replace("%percentage%", getPercentage(player, oreData.getOreType()) + "")));
+                        }
+                    });
+                }
+            }
         }
 
         oreData.setAmountMined(oreData.getAmountMined() + 1);
@@ -129,7 +145,7 @@ public class XRayManager implements Listener {
      * @return The X-Ray Player instance.
      */
     public XRayPlayer getXRayPlayer(UUID uuid, String world) {
-        WorldCache cache = getWorldCache(world, false);
+        WorldCache cache = getWorldCache(world, true);
         return cache == null ? null : cache.getPlayerCache().get(uuid);
     }
 
