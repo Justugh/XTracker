@@ -1,4 +1,4 @@
-##What is XTracker?
+## What is XTracker?
 XTracker is a Minecraft plugin made to make tracking and catching X-Ray hackers easier.
 
 ## 💻 Commands
