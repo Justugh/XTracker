@@ -12,13 +12,17 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
 public class XRayStatsCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (label.equalsIgnoreCase("xraycheck")) {
             if (sender instanceof Player) {
-                if(!sender.hasPermission(XTracker.getInstance().getConfig().getString("command-permission"))) {
+                if (!sender.hasPermission(XTracker.getInstance().getConfig().getString("command-permission"))) {
                     sender.sendMessage(Format.format(XTracker.getInstance().getConfig().getString("no-permission")));
                     return true;
                 }
@@ -41,28 +45,49 @@ public class XRayStatsCommand implements CommandExecutor {
 
     private void displayCheck(Player sender, String player, String world) {
         XTracker xTracker = XTracker.getInstance();
-        OfflinePlayer bukkitPlayer = Bukkit.getOfflinePlayer(UUIDUtil.getUUID(player));
 
-        if (bukkitPlayer != null && bukkitPlayer.hasPlayedBefore()) {
-            XRayPlayer xRayPlayer = xTracker.getXRayManager().getXRayPlayer(bukkitPlayer.getUniqueId(), world);
+        // Get uuid async
+        CompletableFuture<UUID> future = CompletableFuture.supplyAsync(() -> {
+            return UUIDUtil.getUUID(player);
+        });
 
-            if (xRayPlayer == null) {
+        // Run code after async task has value (without blocking main thread)
+        future.thenRun(() -> {
+            UUID uuid = null;
+
+            try {
+                // Retrieve value from future
+                uuid = future.get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+
+            // Make sure it's not null, stop if it is.
+            if (uuid == null) return;
+
+            OfflinePlayer bukkitPlayer = Bukkit.getOfflinePlayer(uuid);
+
+            if (bukkitPlayer != null && bukkitPlayer.hasPlayedBefore()) {
+                XRayPlayer xRayPlayer = xTracker.getXRayManager().getXRayPlayer(bukkitPlayer.getUniqueId(), world);
+
+                if (xRayPlayer == null) {
+                    sender.sendMessage(Format.format(xTracker.getConfig().getString("no-data").replace("%player%", player).replace("%world%", world)));
+                    return;
+                }
+
+                sender.sendMessage(Format.format(xTracker.getConfig().getString("data-title").replace("%player%", bukkitPlayer.getName())));
+
+                for (OreData oreData : xRayPlayer.getOreData()) {
+                    sender.sendMessage(Format.format(xTracker.getConfig().getString("data-item")
+                            .replace("%ore_type%", oreData.getOreType().getFriendlyName())
+                            .replace("%amount_mined%", oreData.getAmountMined() + "")
+                            .replace("%veins_mined%", oreData.getOreVeinsMined() + "")
+                            .replace("%percentage%", xTracker.getXRayManager().getPercentage(xRayPlayer, oreData.getOreType()) + "")));
+                }
+            } else {
                 sender.sendMessage(Format.format(xTracker.getConfig().getString("no-data").replace("%player%", player).replace("%world%", world)));
-                return;
             }
-
-            sender.sendMessage(Format.format(xTracker.getConfig().getString("data-title").replace("%player%", bukkitPlayer.getName())));
-
-            for (OreData oreData : xRayPlayer.getOreData()) {
-                sender.sendMessage(Format.format(xTracker.getConfig().getString("data-item")
-                        .replace("%ore_type%", oreData.getOreType().getFriendlyName())
-                        .replace("%amount_mined%", oreData.getAmountMined() + "")
-                        .replace("%veins_mined%", oreData.getOreVeinsMined() + "")
-                        .replace("%percentage%", xTracker.getXRayManager().getPercentage(xRayPlayer, oreData.getOreType()) + "")));
-            }
-        } else {
-            sender.sendMessage(Format.format(xTracker.getConfig().getString("no-data").replace("%player%", player).replace("%world%", world)));
-        }
+        });
     }
 
 }

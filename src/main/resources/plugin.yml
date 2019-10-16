@@ -8,5 +8,7 @@ commands:
   xraycheck:
     description: "View X-Ray data about the player."
     aliases: ["xcheck", "xraystats"]
+    usage: /xraycheck
   xtracker:
     description: "Reload the XTracker configuration."
+    usage: /xtracker
