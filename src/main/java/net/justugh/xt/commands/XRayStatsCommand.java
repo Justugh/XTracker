@@ -47,20 +47,10 @@ public class XRayStatsCommand implements CommandExecutor {
         XTracker xTracker = XTracker.getInstance();
 
         // Get uuid async
-        CompletableFuture<UUID> future = CompletableFuture.supplyAsync(() -> {
-            return UUIDUtil.getUUID(player);
-        });
+        CompletableFuture<UUID> future = CompletableFuture.supplyAsync(() -> UUIDUtil.getUUID(player));
 
         // Run code after async task has value (without blocking main thread)
-        future.thenRun(() -> {
-            UUID uuid = null;
-
-            try {
-                // Retrieve value from future
-                uuid = future.get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
+        future.thenAccept((uuid) -> {
 
             // Make sure it's not null, stop if it is.
             if (uuid == null) return;
